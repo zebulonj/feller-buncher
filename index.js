@@ -145,7 +145,7 @@ module.exports = {
 
   FATAL,
   ERROR,
-  WARN
+  WARN,
   INFO,
   DEBUG,
   TRACE
