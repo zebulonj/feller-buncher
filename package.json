@@ -1,6 +1,9 @@
 {
   "name": "feller-buncher",
   "version": "0.0.2",
+  "engines": {
+    "node": ">=8.11.4"
+  },
   "description": "A light, middleware enabled, logger for Node.",
   "main": "index.js",
   "repository": "git@github.com:zebulonj/feller-buncher.git",

@@ -1,26 +1,26 @@
 // A light, middleware enabled, logger.
 
-import os from 'os';
-import util from 'util';
-import fs from 'fs';
+const os = require('os');
+const util = require('util');
+const fs = require('fs');
 
-import EventEmitter from 'events';
+const EventEmitter = require('events');
 
-import stringify from 'json-stable-stringify';
+const stringify = require('json-stable-stringify');
 
-export const FATAL = 60;
-export const ERROR = 50;
-export const WARN = 40;
-export const INFO = 30;
-export const DEBUG = 20;
-export const TRACE = 10;
+const FATAL = 60;
+const ERROR = 50;
+const WARN = 40;
+const INFO = 30;
+const DEBUG = 20;
+const TRACE = 10;
 
 /**
  *
  * @param  {String} [name='app'] Logger name.
  * @param  {Array}  [middleware=[]]      Middleware is applied, left-to-right, before a payload is logged.
  */
-export function createLogger({
+function createLogger({
     name = 'app',
     level: threshold = INFO,
     middleware = [],
@@ -91,7 +91,7 @@ export function createLogger({
             trace: (...args) => log(TRACE, ...args),
 
             log,
-            
+
             child: (childProps = {}) =>
                 encapsulate({ ...props, ...childProps }),
         };
@@ -140,4 +140,13 @@ function registerListener(
     }
 }
 
-export default { createLogger };
+module.exports = {
+  createLogger,
+
+  FATAL,
+  ERROR,
+  WARN
+  INFO,
+  DEBUG,
+  TRACE
+};

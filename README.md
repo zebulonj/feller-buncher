@@ -9,7 +9,7 @@ A light, middleware enabled, logger for Node.
 ### Example
 
 ```js
-import { createLogger } from 'feller-buncher';
+const { createLogger } = require('feller-buncher');
 
 const log = createLogger({ name: 'my-app' });
 
