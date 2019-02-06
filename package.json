@@ -9,6 +9,14 @@
   "dependencies": {
     "json-stable-stringify": "^1.0.1"
   },
+  "keywords": [
+    "log",
+    "logging",
+    "json",
+    "streams",
+    "bunyan",
+    "logstash"
+  ],
   "publishConfig": {
     "access": "public"
   }
