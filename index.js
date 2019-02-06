@@ -87,7 +87,7 @@ function createLogger({
             error: (...args) => log(ERROR, ...args),
             warn:  (...args) => log(WARN, ...args),
             info:  (...args) => log(INFO, ...args),
-            debug: (...args) => log(DEGUB, ...args),
+            debug: (...args) => log(DEBUG, ...args),
             trace: (...args) => log(TRACE, ...args),
 
             log,
