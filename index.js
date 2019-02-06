@@ -83,7 +83,15 @@ export function createLogger({
         }
 
         return {
-            info: (...args) => log(INFO, ...args),
+            fatal: (...args) => log(FATAL, ...args),
+            error: (...args) => log(ERROR, ...args),
+            warn:  (...args) => log(WARN, ...args),
+            info:  (...args) => log(INFO, ...args),
+            debug: (...args) => log(DEGUB, ...args),
+            trace: (...args) => log(TRACE, ...args),
+
+            log,
+            
             child: (childProps = {}) =>
                 encapsulate({ ...props, ...childProps }),
         };
