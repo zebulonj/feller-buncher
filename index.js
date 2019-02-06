@@ -58,7 +58,7 @@ function createLogger({
                 const time = new Date().toISOString();
 
                 if (typeof data === 'string') {
-                    log(level, {}, data, message, ...args);
+                    log(level, {}, data, ...[message, ...args].slice(0, arguments.length - 2));
                 } else if (data instanceof Error) {
                     log(level, { err: data }, message || data.message, ...args);
                 } else {
