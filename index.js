@@ -35,7 +35,6 @@ function createLogger({
     ]);
 
     const events = new EventEmitter();
-    events.on('error', err => console.error(err));
 
     // Mount streams.
     const listeners =
@@ -124,7 +123,7 @@ function registerListener(
     { level: threshold = INFO, stream, path } = {},
 ) {
     if (!stream && !path) {
-        emitter.emit('error', new Error('Invalid stream specification'));
+        throw new Error('Invalid stream specification');
     } else {
         const listener =
             stream ||
@@ -136,6 +135,10 @@ function registerListener(
             if (level >= threshold) {
                 listener.write(`${stringify(message)}\n`, 'utf8');
             }
+        });
+
+        emitter.on('error', err => {
+            listener.write(`${err}\n`, 'utf8');
         });
     }
 }
