@@ -6,6 +6,10 @@ A light, middleware enabled, logger for Node.
 
 -- [Wikipedia](https://en.wikipedia.org/wiki/Feller_buncher)
 
+```
+> npm install --save feller-buncher
+```
+
 ### Example
 
 ```js
@@ -15,5 +19,19 @@ const log = createLogger({ name: 'my-app' });
 
 log.info('Hello World!')
 ```
+
+### Features
+
+The core API and output format of this library mirror those of [bunyan](https://github.com/trentm/node-bunyan), but
+it is a slimmed down offering.
+
+- streams
+- serializers
+- sub-component loggers (`log.child`)
+- levels
+
+To that it adds:
+- **middleware**. Functions to transform or **amend** log messages before output. These are distinguishable 
+  from serializers in that their effect is not isolated to a single top-level key.
 
 _Log on..._
