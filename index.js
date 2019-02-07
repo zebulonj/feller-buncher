@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const EventEmitter = require('events');
 
-const stringify = require('json-stable-stringify');
+const stringify = require('fast-safe-stringify');
 
 const FATAL = 60;
 const ERROR = 50;
@@ -52,46 +52,44 @@ function createLogger({
 
     function encapsulate(props = {}) {
         function log(level, data, message, ...args) {
-            if (level >= threshold) {
-                const hostname = os.hostname();
-                const { pid } = process;
-                const time = new Date().toISOString();
+            const hostname = os.hostname();
+            const { pid } = process;
+            const time = new Date().toISOString();
 
-                if (typeof data === 'string') {
-                    log(
+            if (typeof data === 'string') {
+                log(
+                    level,
+                    {},
+                    data,
+                    ...[message, ...args].slice(0, arguments.length - 2),
+                );
+            } else if (data instanceof Error) {
+                log(level, { err: data }, message || data.message, ...args);
+            } else {
+                events.emit('message', {
+                    level,
+                    message: {
+                        ...transforms({
+                            ...props,
+                            ...data,
+                        }),
+                        msg: util.format(message, ...args),
                         level,
-                        {},
-                        data,
-                        ...[message, ...args].slice(0, arguments.length - 2),
-                    );
-                } else if (data instanceof Error) {
-                    log(level, { err: data }, message || data.message, ...args);
-                } else {
-                    events.emit('message', {
-                        level,
-                        message: {
-                            ...transforms({
-                                ...props,
-                                ...data,
-                            }),
-                            msg: util.format(message, ...args),
-                            level,
-                            name,
-                            hostname,
-                            pid,
-                            time,
-                            v: 0,
-                        },
-                    });
-                }
+                        name,
+                        hostname,
+                        pid,
+                        time,
+                        v: 0,
+                    },
+                });
             }
         }
 
         return {
             fatal: (...args) => log(FATAL, ...args),
             error: (...args) => log(ERROR, ...args),
-            warn:  (...args) => log(WARN, ...args),
-            info:  (...args) => log(INFO, ...args),
+            warn: (...args) => log(WARN, ...args),
+            info: (...args) => log(INFO, ...args),
             debug: (...args) => log(DEBUG, ...args),
             trace: (...args) => log(TRACE, ...args),
 
