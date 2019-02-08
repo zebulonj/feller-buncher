@@ -37,6 +37,8 @@ function createLogger({
     const events = new EventEmitter();
     // events.on('message', ({ message }) => console.log(message));
 
+    const registrar = createRegistrar(name);
+
     // Mount streams.
     const listeners =
         streams.length > 0
@@ -48,14 +50,10 @@ function createLogger({
                   },
               ];
 
-    listeners.forEach(def => registerListener(events, def));
+    listeners.forEach(def => registrar(events, def));
 
     function encapsulate(props = {}) {
         function log(level, data, message, ...args) {
-            const hostname = os.hostname();
-            const { pid } = process;
-            const time = new Date().toISOString();
-
             if (typeof data === 'string') {
                 log(
                     level,
@@ -76,10 +74,7 @@ function createLogger({
                         msg: util.format(message, ...args),
                         level,
                         name,
-                        hostname,
-                        pid,
-                        time,
-                        v: 0,
+                        ...annotateMessage(),
                     },
                 });
             }
@@ -103,6 +98,15 @@ function createLogger({
     return encapsulate(rest);
 }
 
+function annotateMessage() {
+    return {
+        hostname: os.hostname(),
+        pid: process.pid,
+        time: new Date().toISOString(),
+        v: 0,
+    };
+}
+
 function compose(fns = []) {
     return data => fns.reduce((acc, fn) => fn(acc), data);
 }
@@ -122,29 +126,42 @@ function prepareSerializers(serializers = {}) {
     );
 }
 
-function registerListener(
-    emitter,
-    { level: threshold = INFO, stream, path } = {},
-) {
-    if (!stream && !path) {
-        throw new Error('Invalid stream specification');
-    } else {
-        const listener =
-            stream ||
-            fs.createWriteStream(path, {
-                flags: 'a',
+function createRegistrar(name) {
+    return function registerListener(
+        emitter,
+        { level: threshold = INFO, stream, path } = {},
+    ) {
+        if (!stream && !path) {
+            throw new Error('Invalid stream specification');
+        } else {
+            const listener =
+                stream ||
+                fs.createWriteStream(path, {
+                    flags: 'a',
+                });
+
+            emitter.on('message', ({ level, message }) => {
+                if (level >= threshold) {
+                    listener.write(`${stringify(message)}\n`, 'utf8');
+                }
             });
 
-        emitter.on('message', ({ level, message }) => {
-            if (level >= threshold) {
-                listener.write(`${stringify(message)}\n`, 'utf8');
-            }
-        });
+            emitter.on('error', err => {
+                listener.write(`${err}\n`, 'utf8');
+            });
 
-        emitter.on('error', err => {
-            listener.write(`${err}\n`, 'utf8');
-        });
-    }
+            // Flag the beginning of logging on the stream.
+            listener.write(
+                `${stringify({
+                    name,
+                    level: threshold,
+                    msg: 'Begin logging',
+                    ...annotateMessage(),
+                })}\n`,
+                'utf8',
+            );
+        }
+    };
 }
 
 module.exports = {
